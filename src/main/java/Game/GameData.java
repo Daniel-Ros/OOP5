@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 public class GameData {
 
+    public static final Object AgentLock = new Object();
+
     private ArrayList<Agent> agents;
     private ArrayList<Pokemon> allPokemons;
     private ArrayList<Pokemon> freePokemons;
@@ -49,4 +51,6 @@ public class GameData {
     public void addAgent(Agent a) {
         agents.add(a);
     }
+
+
 }

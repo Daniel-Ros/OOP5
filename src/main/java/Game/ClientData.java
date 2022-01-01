@@ -9,6 +9,7 @@ import implentations.DirectedWeightedGraphAlgorithmsImpl;
 import implentations.Vector3;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class ClientData implements Runnable {
@@ -47,6 +48,7 @@ public class ClientData implements Runnable {
 
     public void run()
     {
+        HashMap<Agent,Integer> agentLastPos = new HashMap<Agent,Integer>();
         synchronized (this){
             try {
                 wait();
@@ -60,6 +62,32 @@ public class ClientData implements Runnable {
             synchronized (client){
                 checkForNewPokemons();
                 updateAgents();
+                boolean moved = false;
+                synchronized (gd.AgentLock){
+                    for (Agent a :
+                            gd.getAgents()) {
+                        int node = a.getNextStaion();
+                        if(!agentLastPos.containsKey(a)){
+                            moved = true;
+                            agentLastPos.put(a,node);
+                        }
+                        else if(agentLastPos.get(a) != node){
+                            moved = true;
+                            agentLastPos.replace(a,node);
+                        }
+                    }
+                    if (moved){
+                        for (Agent a :
+                                gd.getAgents()) {
+                            sendAgent(a.id,agentLastPos.get(a));
+                        }
+                    }
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 move();
             }
             try {
@@ -114,6 +142,7 @@ public class ClientData implements Runnable {
         synchronized (gd){
             synchronized (client) {
                 HashSet<Pokemon> currentPokemons = new HashSet<Pokemon>();
+                boolean changed = false;
                 String json = client.getPokemons();
                 //System.out.println(json);
                 JsonElement elements = JsonParser.parseString(json);
@@ -141,6 +170,7 @@ public class ClientData implements Runnable {
                         gd.addPokemon(p);
                         gd.notifyAll();
                         currentPokemons.add(p);
+                        changed = true;
                     }
                 }
 
@@ -148,8 +178,15 @@ public class ClientData implements Runnable {
                     if (!currentPokemons.contains(gd.getFreePokemons().get(i))){
                         System.out.println("removing pokemon");
                         gd.getFreePokemons().remove(gd.getFreePokemons().get(i));
+                        changed = true;
                     }
                 }
+
+                if (changed)
+                    synchronized (GameData.AgentLock){
+                        GameData.AgentLock.notifyAll();
+                    }
+
             }
         }
     }

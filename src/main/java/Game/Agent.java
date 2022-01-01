@@ -103,31 +103,35 @@ public class Agent implements Runnable{
         }
         System.out.println("agent running");
         while (cd.isRunning()){
-            calculatePath();
-            if(path == null || path.isEmpty())
-            {
-                System.out.println("no path");
-                continue;
-            }
-            //System.out.println("send " + id + "to" + path.get(0).getKey());
-            cd.sendAgent(id,path.get(0).getKey());
-            cd.move();
-//
-            List<Pokemon> freePokemons = gd.getFreePokemons();
-            if(freePokemons.isEmpty())
-                return;
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            synchronized (GameData.AgentLock) {
+                try {
+                    GameData.AgentLock.wait(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                calculatePath();
+                if (path == null || path.isEmpty()) {
+                    System.out.println("no path");
+                    continue;
+                }
+                List<Pokemon> freePokemons = gd.getFreePokemons();
+                if (freePokemons.isEmpty())
+                    return;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
         System.out.println("agent stopped");
     }
 
     private void calculatePath(){
-        if(dest != -1)
+        if(dest != -1) {
             return;
+        }
+
 
         List<Pokemon> freePokemons = gd.getFreePokemons();
         if(freePokemons.isEmpty()) {
@@ -143,11 +147,11 @@ public class Agent implements Runnable{
         int pdest = p.getEdge().getDest();
         NodeData nsrc = gd.getGa().getGraph().getNode(psrc);
         NodeData ndest = gd.getGa().getGraph().getNode(pdest);
-        //System.out.println("from" + src + " to" + pdest);
+        System.out.println("from" + src + " to" + pdest);
 
         path = gd.getGa().shortestPath(src,p.getEdge().getSrc());
         if(!path.contains(ndest) || !path.contains(nsrc)) {
-            //System.out.println("from" + src + " to" + pdest);
+            System.out.println("from" + src + " to" + pdest);
             path = gd.getGa().shortestPath(src, p.getEdge().getDest());
         }
 
