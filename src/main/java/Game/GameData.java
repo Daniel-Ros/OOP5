@@ -42,6 +42,8 @@ public class GameData {
     public void addPokemon(Pokemon p) {
         allPokemons.add(p);
         freePokemons.add(p);
+        if(ga != null)
+            p.calculateEdge(ga);
     }
 
     public void addAgent(Agent a) {

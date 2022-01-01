@@ -17,6 +17,8 @@ public class Agent implements Runnable{
     GeoLocation pos;
     List<NodeData> path;
 
+    int next;
+
     List<Pokemon> myPokemons;
     GameData gd;
     ClientData cd;
@@ -25,6 +27,8 @@ public class Agent implements Runnable{
         this.id = id;
         this.gd = gd;
         this.cd = cd;
+
+        next = 10;
 
         new Thread(this).start();
     }
@@ -44,6 +48,7 @@ public class Agent implements Runnable{
     }
 
     public void setSrc(int src) {
+        next = src;
         this.src = src;
     }
 
@@ -72,8 +77,7 @@ public class Agent implements Runnable{
     }
 
     public int getNextStaion() {
-        if(path.isEmpty()) return -1;
-        return path.get(0).getKey();
+         return next;
     }
 
     /**
@@ -89,32 +93,36 @@ public class Agent implements Runnable{
      */
     @Override
     public void run() {
-        System.out.println("agent running");
         synchronized (cd){
             try {
                 cd.wait();
+                while (!cd.isRunning());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+        System.out.println("agent running");
         while (cd.isRunning()){
             calculatePath();
-
             if(path == null || path.isEmpty())
+            {
+                System.out.println("no path");
                 continue;
-
-            for (NodeData n :
-                    path) {
-                System.out.print(n.getKey() + "->");
             }
+            //System.out.println("send " + id + "to" + path.get(0).getKey());
             cd.sendAgent(id,path.get(0).getKey());
             cd.move();
+//
+            List<Pokemon> freePokemons = gd.getFreePokemons();
+            if(freePokemons.isEmpty())
+                return;
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+        System.out.println("agent stopped");
     }
 
     private void calculatePath(){
@@ -122,27 +130,29 @@ public class Agent implements Runnable{
             return;
 
         List<Pokemon> freePokemons = gd.getFreePokemons();
-
-        if(freePokemons.isEmpty())
+        if(freePokemons.isEmpty()) {
+            System.out.println("no pokemons");
             return;
-        Pokemon p = freePokemons.get(0);
-        System.out.println(p.getPos().distance(pos));
-        while (!freePokemons.isEmpty() && p.getPos().distance(pos) < 0.002) {
-            freePokemons.remove(p);
-            if(freePokemons.isEmpty())
-                return;
-            p  = freePokemons.get(0);
         }
 
+
+        Pokemon p = freePokemons.get(0);
+        while (p.getEdge() == null)
+            p.calculateEdge(gd.getGa());
         int psrc = p.getEdge().getSrc();
         int pdest = p.getEdge().getDest();
         NodeData nsrc = gd.getGa().getGraph().getNode(psrc);
         NodeData ndest = gd.getGa().getGraph().getNode(pdest);
-        path = gd.getGa().shortestPath(src,p.getEdge().getDest());
-        if(!path.contains(ndest) || !path.contains(nsrc))
-            path = gd.getGa().shortestPath(src,p.getEdge().getSrc());
+        //System.out.println("from" + src + " to" + pdest);
+
+        path = gd.getGa().shortestPath(src,p.getEdge().getSrc());
+        if(!path.contains(ndest) || !path.contains(nsrc)) {
+            //System.out.println("from" + src + " to" + pdest);
+            path = gd.getGa().shortestPath(src, p.getEdge().getDest());
+        }
 
         path.remove(0);
+        next = path.get(0).getKey();
     }
 }
 

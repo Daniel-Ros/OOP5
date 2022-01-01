@@ -39,6 +39,10 @@ public class Vector3 implements GeoLocation {
         return Math.sqrt(Math.pow(x - g.x(),2) + Math.pow(y - g.y(),2) + Math.pow(z - g.z(),2));
     }
 
+    public double distanceSqrt(GeoLocation g) {
+        return Math.pow(x - g.x(),2) + Math.pow(y - g.y(),2);
+    }
+
     public GeoLocation sum(GeoLocation g) {
         return new Vector3(x + g.x(),y + g.y(),z + g.z());
     }
@@ -47,6 +51,14 @@ public class Vector3 implements GeoLocation {
         return new Vector3(x - g.x(),y - g.y(),z - g.z());
     }
 
+    public boolean inRect(GeoLocation p1, GeoLocation p2){
+        double min_x = Math.min(p1.x(), p2.x()) - 0.0001;
+        double min_y = Math.min(p1.y(), p2.y()) - 0.0001;
+        double max_x = Math.max(p1.x(), p2.x()) + 0.0001;
+        double max_y = Math.max(p1.y(), p2.y()) + 0.0001;
+
+        return x > min_x && x < max_x && y > min_y && y < max_y;
+    }
 
     public static GeoLocation fromString(String pos)
     {

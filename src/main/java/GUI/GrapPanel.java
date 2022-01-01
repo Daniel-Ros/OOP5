@@ -1,6 +1,8 @@
 package GUI;
 
 import Game.Agent;
+import Game.ClientData;
+import Game.GameData;
 import Game.Pokemon;
 import api.*;
 import implentations.DirectedWeightedGraphAlgorithmsImpl;
@@ -30,12 +32,12 @@ public class GrapPanel extends JPanel implements MouseListener, MouseWheelListen
 
     private HashMap<Shape,Integer> circles;
 
-    private ArrayList<Agent> agents;
-    private ArrayList<Pokemon> pokemons;
+    GameData gd;
+    ClientData cd;
 
-    GrapPanel(DirectedWeightedGraphAlgorithms g, GeoLocation min, GeoLocation max, ArrayList<Agent> agents, ArrayList<Pokemon> pokemons){
-        this.agents = agents;
-        this.pokemons = pokemons;
+    GrapPanel(DirectedWeightedGraphAlgorithms g, GeoLocation min, GeoLocation max, GameData gd, ClientData cd){
+        this.gd = gd;
+        this.cd = cd;
 
         ga = g;
         this.min = min;
@@ -104,16 +106,19 @@ public class GrapPanel extends JPanel implements MouseListener, MouseWheelListen
             drawArrow(g,p1,p2,15F);
         }
 
-        for (Pokemon p : pokemons)
-        {
-            GeoLocation point = getPoint2ScreenCord(p.getPos().x(),p.getPos().y());
-            g.drawOval((int)point.x(),(int)point.y(),5,5);
-        }
+        synchronized (gd){
+            //System.out.println(gd.getFreePokemons().size());
+            for (Pokemon p : gd.getFreePokemons())
+            {
+                GeoLocation point = getPoint2ScreenCord(p.getPos().x(),p.getPos().y());
+                g.drawOval((int)point.x(),(int)point.y(),5,5);
+            }
 
-        for (Agent a : agents)
-        {
-            GeoLocation point = getPoint2ScreenCord(a.getPos().x(),a.getPos().y());
-            g.drawOval((int)point.x(),(int)point.y(),5,5);
+
+            for (Agent a : gd.getAgents()) {
+                GeoLocation point = getPoint2ScreenCord(a.getPos().x(), a.getPos().y());
+                g.drawOval((int) point.x() - 7, (int)point.y() - 7, 15,15);
+            }
         }
     }
 

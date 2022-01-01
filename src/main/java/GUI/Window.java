@@ -1,6 +1,8 @@
 package GUI;
 
 import Game.Agent;
+import Game.ClientData;
+import Game.GameData;
 import Game.Pokemon;
 import api.DirectedWeightedGraphAlgorithms;
 import implentations.DirectedWeightedGraphAlgorithmsImpl;
@@ -12,17 +14,23 @@ import java.util.ArrayList;
 /**
  * This is the main window the combines all the panels together
  */
-public class Window {
+public class Window implements Runnable{
+
+    GameData gd;
+    ClientData cd;
 
     DirectedWeightedGraphAlgorithms ga;
     JFrame window;
     GrapPanel graphPanel;
-    public Window(DirectedWeightedGraphAlgorithms graphAlgorithms, ArrayList<Agent> agents, ArrayList<Pokemon> pokemons){
-        ga = graphAlgorithms;
 
+    public Window(GameData gd, ClientData cd) {
+        this.gd = gd;
+        this.cd = cd;
+
+        ga = gd.getGa();
 
         window = new JFrame();
-        graphPanel = new GrapPanel(ga,((DirectedWeightedGraphAlgorithmsImpl)ga).getMin(),((DirectedWeightedGraphAlgorithmsImpl)ga).getMax(),agents,pokemons);
+        graphPanel = new GrapPanel(ga,((DirectedWeightedGraphAlgorithmsImpl)ga).getMin(),((DirectedWeightedGraphAlgorithmsImpl)ga).getMax(),gd,cd);
 
         window.setSize(800,800);
         window.setTitle("Daniel Roseberg and Daniel Zinn");
@@ -30,6 +38,8 @@ public class Window {
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         window.add(graphPanel,BorderLayout.CENTER);
+
+        new Thread(this).start();
     }
 
     public void repaint()
@@ -37,4 +47,15 @@ public class Window {
         graphPanel.getTopLevelAncestor().repaint();
     }
 
+    @Override
+    public void run() {
+        while (cd.isRunning()) {
+            repaint();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

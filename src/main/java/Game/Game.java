@@ -35,7 +35,7 @@ public class Game {
             System.out.println("building agent");
             Agent a = new Agent(i,gd,cd);
             // TODO: Better starting position
-            a.setSrc(gd.getAllPokemons().get(0).getEdge().getSrc());
+            a.setSrc(gd.getAllPokemons().get(0).getEdge().getDest());
             gd.addAgent(a);
             cd.registerAgent(a);
         }
@@ -43,5 +43,7 @@ public class Game {
         synchronized (cd) {
             cd.notifyAll();
         }
+
+        gui = new Window(gd,cd);
     }
 }

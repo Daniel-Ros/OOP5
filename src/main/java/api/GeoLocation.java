@@ -8,4 +8,5 @@ public interface GeoLocation {
     public double y();
     public double z();
     public double distance(GeoLocation g);
+    public boolean inRect(GeoLocation p1, GeoLocation p2);
 }

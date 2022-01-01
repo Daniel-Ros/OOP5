@@ -9,6 +9,7 @@ import implentations.DirectedWeightedGraphAlgorithmsImpl;
 import implentations.Vector3;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 public class ClientData implements Runnable {
     private int maxPokemons;
@@ -59,9 +60,10 @@ public class ClientData implements Runnable {
             synchronized (client){
                 checkForNewPokemons();
                 updateAgents();
+                move();
             }
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -76,7 +78,6 @@ public class ClientData implements Runnable {
 
     public boolean isRunning(){
         synchronized (client) {
-            System.out.println(client.isRunning());
             return client.isRunning().equals("true");
         }
     }
@@ -86,10 +87,9 @@ public class ClientData implements Runnable {
     }
 
     private void updateAgents(){
-        System.out.println("checking agents");
-        synchronized (client) {
+            synchronized (client) {
             String json = client.getAgents();
-            System.out.println(json);
+            //System.out.println(json);
             JsonElement elements = JsonParser.parseString(json);
             JsonObject object = elements.getAsJsonObject();
             JsonArray agentsArray = object.get("Agents").getAsJsonArray();
@@ -111,10 +111,12 @@ public class ClientData implements Runnable {
     }
 
     private void checkForNewPokemons(){
-        System.out.println("checking pokemons");
         synchronized (gd){
             synchronized (client) {
-                JsonElement elements = JsonParser.parseString(client.getPokemons());
+                HashSet<Pokemon> currentPokemons = new HashSet<Pokemon>();
+                String json = client.getPokemons();
+                //System.out.println(json);
+                JsonElement elements = JsonParser.parseString(json);
                 JsonObject object = elements.getAsJsonObject();
                 JsonArray agentsArray = object.get("Pokemons").getAsJsonArray();
 
@@ -127,14 +129,25 @@ public class ClientData implements Runnable {
                     Boolean ex = false;
 
                     for (Pokemon p : gd.getAllPokemons()) {
-                        if (p.getType() == type && p.getVal() == value && p.getPos().distance(Vector3.fromString(pos)) < 0.02) {
+                        if (p.getType() == type && p.getVal() == value && p.getPos().distance(Vector3.fromString(pos)) < 0.00001 * 0.00001) {
+                            //System.out.println("is eq to pokemon");
+                            currentPokemons.add(p);
                             ex = true;
                         }
                     }
                     if (!ex) {
+                        System.out.println("need to add pokemon");
                         Pokemon p = new Pokemon(value, type, Vector3.fromString(pos));
                         gd.addPokemon(p);
                         gd.notifyAll();
+                        currentPokemons.add(p);
+                    }
+                }
+
+                for (int i = 0; i < gd.getFreePokemons().size();i++) {
+                    if (!currentPokemons.contains(gd.getFreePokemons().get(i))){
+                        System.out.println("removing pokemon");
+                        gd.getFreePokemons().remove(gd.getFreePokemons().get(i));
                     }
                 }
             }
@@ -160,7 +173,7 @@ public class ClientData implements Runnable {
 
     public void sendAgent(int id, int key) {
         synchronized (client) {
-            System.out.println("sending agent:" + id + " to:" + key);
+            System.out.println("agent " + id + " to " + key);
             client.chooseNextEdge("{\"agent_id\":" + id + ", \"next_node_id\": " + key + "}");
         }
     }
