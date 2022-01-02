@@ -5,6 +5,7 @@ import api.GeoLocation;
 import api.NodeData;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
@@ -128,10 +129,6 @@ public class Agent implements Runnable{
     }
 
     private void calculatePath(){
-        if(dest != -1) {
-            return;
-        }
-
 
         List<Pokemon> freePokemons = gd.getFreePokemons();
         if(freePokemons.isEmpty()) {
@@ -139,6 +136,16 @@ public class Agent implements Runnable{
             return;
         }
 
+
+        List<NodeData> cp = new LinkedList<NodeData>();
+
+        for (Pokemon p :
+                gd.getFreePokemons()) {
+            cp.add(gd.getGa().getGraph().getNode(p.getEdge().getSrc()));
+            cp.add(gd.getGa().getGraph().getNode(p.getEdge().getDest()));
+        }
+
+        path = gd.getGa().tsp(cp);
 
         Pokemon p = freePokemons.get(0);
         while (p.getEdge() == null)

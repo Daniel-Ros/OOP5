@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Game {
+public class Game implements Runnable{
     ClientData cd;
     GameData gd;
 
@@ -45,5 +45,20 @@ public class Game {
         }
 
         gui = new Window(gd,cd);
+
+        new Thread(this).start();
+    }
+
+    @Override
+    public void run() {
+        System.out.println("Game starting");
+        while (cd.isRunning()){
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            cd.move();
+        }
     }
 }

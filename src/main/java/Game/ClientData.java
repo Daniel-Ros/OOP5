@@ -83,12 +83,12 @@ public class ClientData implements Runnable {
                         }
                     }
                     try {
-                        Thread.sleep(1);
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
-                move();
+                //move();
             }
             try {
                 Thread.sleep(1);
