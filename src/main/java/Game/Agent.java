@@ -108,6 +108,8 @@ public class Agent implements Runnable {
                 cd.wait();
                 while (!cd.isRunning()) ;
             } catch (InterruptedException e) {
+
+
                 e.printStackTrace();
             }
         }
@@ -179,9 +181,23 @@ public class Agent implements Runnable {
     }
 
     public double distToTarget(){
-        if(path.size() == 0)
-            return Double.POSITIVE_INFINITY;
-        return path.size();
+        if(dest == -1){
+            return 0;
+        }
+
+        EdgeData edge = gd.getGa().getGraph().getEdge(src, dest);
+        double time = edge.getWeight()/ speed;
+        System.out.println("ret" + time);
+
+
+        System.out.println("size" + path.size());
+        System.out.println("dest" + dest);
+
+        if(path.size() < 2 ) {
+            return Math.max(time / 10,0.1);
+        }else {
+            return Math.min(time / 2,0.25);
+        }
     }
 
     public double bid(Pokemon pokemon) {

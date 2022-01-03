@@ -49,16 +49,19 @@ public class Game implements Runnable{
         System.out.println("Game starting");
         int time = cd.timeToEnd();
         while (cd.isRunning()){
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            for (Agent a:
+                    gd.getAgents()){
+                try {
+                    double t = a.distToTarget();
+                    Thread.sleep((long)(t * 1000.0D));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
+
             int timeLeft = cd.timeToEnd();
-            if(time - timeLeft >= 100) {
                 time = timeLeft;
                 cd.move();
-            }
         }
     }
 }

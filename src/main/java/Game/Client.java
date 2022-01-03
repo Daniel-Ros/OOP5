@@ -12,9 +12,6 @@ public class Client {
     private PrintWriter out;
     private BufferedReader in;
 
-
-    int serverCalls = 0;
-
     /**
      *
      * use with ip='127.0.0.1' , port=6666
@@ -33,7 +30,6 @@ public class Client {
     }
 
     private String sendMessage(String msg) throws IOException {
-        serverCalls++;
         out.println(msg);
         String resp = in.readLine();
         return resp;

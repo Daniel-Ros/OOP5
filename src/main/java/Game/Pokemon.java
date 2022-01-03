@@ -23,7 +23,6 @@ public class Pokemon {
         this.pos = pos;
         this.taken = false;
         this.takenAt = -1;
-        System.out.println("Pokemon " + val);
     }
 
     public int whenTaken(){
@@ -69,15 +68,12 @@ public class Pokemon {
 
             v1.normilze();
             v2.normilze();
-            System.out.println(v1.distance(v2));
             if(v1.distance(v2) < min){
                 minEdge = e;
                 min = v1.distance(v2);
-                System.out.println("is on Edge " + e.getSrc() + "->" + e.getDest());
             }
         }
         edge = minEdge;
-        System.out.println("is on Edge " + minEdge.getSrc() + "->" + minEdge.getDest());
 
     }
 

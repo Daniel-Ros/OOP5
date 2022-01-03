@@ -43,26 +43,17 @@ public class ClientData implements Runnable {
 
     void updateClientData() {
         synchronized (client) {
-            JsonElement elements = JsonParser.parseString(client.getInfo()).getAsJsonObject().get("GameServer");
-            JsonObject object = elements.getAsJsonObject();
+             try {
 
-            /**
-             *     *         "pokemons":1,
-             *      *         "is_logged_in":false,
-             *      *         "moves":1,
-             *      *         "grade":0,
-             *      *         "game_level":0,
-             *      *         "max_user_level":-1,
-             *      *         "id":0,
-             *      *         "graph":"data/A0",
-             *      *         "agents":1
-             *
-             */
-
-            maxPokemons = object.get("pokemons").getAsInt();
-            moves = object.get("moves").getAsInt();
-            maxAgents = object.get("agents").getAsInt();
-            grade = object.get("grade").getAsInt();
+                 JsonElement elements = JsonParser.parseString(client.getInfo()).getAsJsonObject().get("GameServer");
+                 JsonObject object = elements.getAsJsonObject();
+                 maxPokemons = object.get("pokemons").getAsInt();
+                 moves = object.get("moves").getAsInt();
+                 maxAgents = object.get("agents").getAsInt();
+                 grade = object.get("grade").getAsInt();
+             }catch (Exception e){
+                 return;
+             }
         }
     }
 
@@ -111,7 +102,6 @@ public class ClientData implements Runnable {
                 e.printStackTrace();
             }
         }
-        System.out.println(client.serverCalls);
     }
     public void move(){
         synchronized (client){
@@ -254,5 +244,9 @@ public class ClientData implements Runnable {
     }
 
 
-
+    public void stop() {
+        synchronized (client){
+            client.stop();
+        }
+    }
 }

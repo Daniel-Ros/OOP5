@@ -52,7 +52,7 @@ public class Window implements Runnable{
         while (cd.isRunning()) {
             repaint();
             try {
-                Thread.sleep(1000/25);
+                Thread.sleep(16);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

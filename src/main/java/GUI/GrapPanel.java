@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Main panel to draw the graph
  */
-public class GrapPanel extends JPanel implements MouseListener, MouseWheelListener , MouseMotionListener {
+public class GrapPanel extends JPanel implements MouseListener, MouseWheelListener , MouseMotionListener , ActionListener{
     private DirectedWeightedGraphAlgorithms ga;
     private GeoLocation min,max;
 
@@ -35,6 +35,8 @@ public class GrapPanel extends JPanel implements MouseListener, MouseWheelListen
 
     GameData gd;
     ClientData cd;
+
+    JButton stop;
 
     GrapPanel(DirectedWeightedGraphAlgorithms g, GeoLocation min, GeoLocation max, GameData gd, ClientData cd){
         this.gd = gd;
@@ -51,6 +53,12 @@ public class GrapPanel extends JPanel implements MouseListener, MouseWheelListen
         addMouseMotionListener(this);
         addMouseWheelListener(this);
 
+        stop = new JButton("stop");
+        stop.setSize(100,50);
+        stop.addActionListener(this);
+        stop.setLocation(0,50);
+
+        add(stop);
     }
 
     /**
@@ -61,6 +69,7 @@ public class GrapPanel extends JPanel implements MouseListener, MouseWheelListen
         if(ga.getGraph() == null){
             return;
         }
+        stop.repaint();
 
         this.min =((DirectedWeightedGraphAlgorithmsImpl)ga).getMin();
         this.max = ((DirectedWeightedGraphAlgorithmsImpl)ga).getMax();
@@ -70,10 +79,11 @@ public class GrapPanel extends JPanel implements MouseListener, MouseWheelListen
         Iterator<NodeData> itNodes = graph.nodeIter();
 
         synchronized (cd){
-            g.drawString("moves: " + cd.getMoves(),5,10);
+            int moves = cd.getMoves();
+            int time = cd.timeToEnd();
+            g.drawString("moves: " + moves,5,10);
             g.drawString("grade: " + cd.getGrade(),5,24);
-            g.drawString("time left: " + TimeUnit.MILLISECONDS.toSeconds(cd.timeToEnd()),5,38);
-
+            g.drawString("time left: " + TimeUnit.MILLISECONDS.toSeconds(time),5,38);
         }
 
         //draw nodes
@@ -119,12 +129,19 @@ public class GrapPanel extends JPanel implements MouseListener, MouseWheelListen
             //System.out.println(gd.getFreePokemons().size());
             for (Pokemon p : gd.getFreePokemons())
             {
+                g.setStroke(new BasicStroke(5));
+                if(p.getType() == 1){
+                    g.setPaint(Color.GREEN);
+                }else{
+                    g.setPaint(Color.BLUE);
+                }
                 GeoLocation point = getPoint2ScreenCord(p.getPos().x(),p.getPos().y());
-                g.drawOval((int)point.x(),(int)point.y(),5,5);
+                g.drawOval((int)point.x()-7,(int)point.y()-7,15,15);
             }
 
 
             for (Agent a : gd.getAgents()) {
+                g.setPaint(Color.RED);
                 GeoLocation point = getPoint2ScreenCord(a.getPos().x(), a.getPos().y());
                 g.drawOval((int) point.x() - 7, (int)point.y() - 7, 15,15);
             }
@@ -275,5 +292,17 @@ public class GrapPanel extends JPanel implements MouseListener, MouseWheelListen
      */
     @Override
     public void mouseMoved(MouseEvent e) {
+    }
+
+    /**
+     * Invoked when an action occurs.
+     *
+     * @param e the event to be processed
+     */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        synchronized (cd){
+            cd.stop();
+        }
     }
 }
