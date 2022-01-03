@@ -44,7 +44,6 @@ public class ClientData implements Runnable {
     void updateClientData() {
         synchronized (client) {
              try {
-
                  JsonElement elements = JsonParser.parseString(client.getInfo()).getAsJsonObject().get("GameServer");
                  JsonObject object = elements.getAsJsonObject();
                  maxPokemons = object.get("pokemons").getAsInt();

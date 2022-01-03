@@ -49,14 +49,18 @@ public class Game implements Runnable{
         System.out.println("Game starting");
         int time = cd.timeToEnd();
         while (cd.isRunning()){
+            Double minWatingTime = Double.POSITIVE_INFINITY;
             for (Agent a:
                     gd.getAgents()){
-                try {
-                    double t = a.distToTarget();
-                    Thread.sleep((long)(t * 1000.0D));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                double t = a.distToTarget();
+                if(t < minWatingTime)
+                    minWatingTime = t;
+            }
+            try {
+                System.out.println(minWatingTime);
+                Thread.sleep((long)(minWatingTime * 1000.0D));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
 
             int timeLeft = cd.timeToEnd();

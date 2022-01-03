@@ -182,21 +182,15 @@ public class Agent implements Runnable {
 
     public double distToTarget(){
         if(dest == -1){
-            return 0;
+            return 0.1;
         }
 
         EdgeData edge = gd.getGa().getGraph().getEdge(src, dest);
         double time = edge.getWeight()/ speed;
-        System.out.println("ret" + time);
-
-
-        System.out.println("size" + path.size());
-        System.out.println("dest" + dest);
-
         if(path.size() < 2 ) {
-            return Math.max(time / 10,0.1);
+            return Math.min(Math.max(time / 10,0.1),0.15);
         }else {
-            return Math.min(time / 2,0.25);
+            return Math.min(Math.max(time / 2,0.1),0.15);
         }
     }
 
