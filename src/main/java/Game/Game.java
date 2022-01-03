@@ -1,20 +1,13 @@
 package Game;
 
 import GUI.Window;
-import api.DirectedWeightedGraphAlgorithms;
-import implentations.DirectedWeightedGraphAlgorithmsImpl;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Scanner;
+import api.NodeData;
 
 public class Game implements Runnable{
     ClientData cd;
     GameData gd;
 
     Window gui;
-
-
 
     public Game() {
         gd = new GameData();
@@ -29,13 +22,15 @@ public class Game implements Runnable{
                 gd.getAllPokemons()) {
             p.calculateEdge(gd.getGa());
         }
-
-        System.out.println(cd.getMaxAgents());
+        NodeData c = gd.getGa().center();
+        int poke = 0;
         for (int i = 0; i < cd.getMaxAgents(); i++) {
             System.out.println("building agent");
             Agent a = new Agent(i,gd,cd);
-            // TODO: Better starting position
-            a.setSrc(gd.getAllPokemons().get(0).getEdge().getDest());
+            if(poke < cd.getMaxPokemons())
+                a.setSrc(gd.getAllPokemons().get(poke++).getEdge().getSrc());
+            else
+                a.setSrc(c.getKey());
             gd.addAgent(a);
             cd.registerAgent(a);
         }
@@ -46,19 +41,24 @@ public class Game implements Runnable{
 
         gui = new Window(gd,cd);
 
-        new Thread(this).start();
+        new Thread(this,"Game").start();
     }
 
     @Override
     public void run() {
         System.out.println("Game starting");
+        int time = cd.timeToEnd();
         while (cd.isRunning()){
             try {
-                Thread.sleep(1);
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            cd.move();
+            int timeLeft = cd.timeToEnd();
+            if(time - timeLeft >= 100) {
+                time = timeLeft;
+                cd.move();
+            }
         }
     }
 }

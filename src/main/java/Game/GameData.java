@@ -10,7 +10,6 @@ public class GameData {
 
     private ArrayList<Agent> agents;
     private ArrayList<Pokemon> allPokemons;
-    private ArrayList<Pokemon> freePokemons;
 
 
     private DirectedWeightedGraphAlgorithms ga;
@@ -18,7 +17,6 @@ public class GameData {
     GameData(){
         agents = new ArrayList<Agent>();
         allPokemons = new ArrayList<Pokemon>();
-        freePokemons = new ArrayList<Pokemon>();
     }
 
     public ArrayList<Agent> getAgents() {
@@ -30,7 +28,7 @@ public class GameData {
     }
 
     public ArrayList<Pokemon> getFreePokemons() {
-        return freePokemons;
+        return allPokemons;
     }
 
     public void setGa(DirectedWeightedGraphAlgorithms ga) {
@@ -41,11 +39,24 @@ public class GameData {
         return ga;
     }
 
-    public void addPokemon(Pokemon p) {
+    public void addPokemon(Pokemon p,int time) {
         allPokemons.add(p);
-        freePokemons.add(p);
         if(ga != null)
             p.calculateEdge(ga);
+        if(agents == null || agents.isEmpty())
+            return;
+        double dist = Double.POSITIVE_INFINITY;
+        Agent winner = null;
+        for (Agent a :
+                agents) {
+            double tmp = a.bid(p);
+            if(tmp < dist) {
+                dist = tmp;
+                winner = a;
+            }
+        }
+        p.setTaken(time);
+        winner.addPokemon(p);
     }
 
     public void addAgent(Agent a) {
@@ -53,4 +64,11 @@ public class GameData {
     }
 
 
+    public void removePokemon(Pokemon pokemon) {
+        allPokemons.remove(pokemon);
+        for (Agent a :
+                agents) {
+            a.removePokemon(pokemon);
+        }
+    }
 }

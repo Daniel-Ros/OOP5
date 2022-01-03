@@ -12,14 +12,31 @@ public class Pokemon {
     private int type;
     private GeoLocation pos;
     private EdgeData edge;
+    boolean taken;
+
+    int takenAt;
 
     Pokemon(double val,int type,GeoLocation pos)
     {
         this.val = val;
         this.type = type;
         this.pos = pos;
-
+        this.taken = false;
+        this.takenAt = -1;
         System.out.println("Pokemon " + val);
+    }
+
+    public int whenTaken(){
+        return takenAt;
+    }
+
+    public boolean isTaken(){
+        return taken;
+    }
+
+    public void setTaken(int time){
+        takenAt = time;
+        taken = true;
     }
 
     public void calculateEdge(DirectedWeightedGraphAlgorithms ga){

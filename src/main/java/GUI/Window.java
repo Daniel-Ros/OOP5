@@ -39,7 +39,7 @@ public class Window implements Runnable{
 
         window.add(graphPanel,BorderLayout.CENTER);
 
-        new Thread(this).start();
+        new Thread(this,"GUI").start();
     }
 
     public void repaint()
@@ -52,7 +52,7 @@ public class Window implements Runnable{
         while (cd.isRunning()) {
             repaint();
             try {
-                Thread.sleep(10);
+                Thread.sleep(1000/25);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

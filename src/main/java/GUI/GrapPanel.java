@@ -16,6 +16,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Main panel to draw the graph
@@ -60,12 +61,20 @@ public class GrapPanel extends JPanel implements MouseListener, MouseWheelListen
         if(ga.getGraph() == null){
             return;
         }
+
         this.min =((DirectedWeightedGraphAlgorithmsImpl)ga).getMin();
         this.max = ((DirectedWeightedGraphAlgorithmsImpl)ga).getMax();
         circles = new HashMap<>();
         DirectedWeightedGraph graph = ga.getGraph();
         Graphics2D g = (Graphics2D)graphics;
         Iterator<NodeData> itNodes = graph.nodeIter();
+
+        synchronized (cd){
+            g.drawString("moves: " + cd.getMoves(),5,10);
+            g.drawString("grade: " + cd.getGrade(),5,24);
+            g.drawString("time left: " + TimeUnit.MILLISECONDS.toSeconds(cd.timeToEnd()),5,38);
+
+        }
 
         //draw nodes
         while(itNodes.hasNext()){

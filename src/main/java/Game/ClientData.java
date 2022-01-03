@@ -17,6 +17,10 @@ public class ClientData implements Runnable {
     private int moves;
     private int maxAgents;
 
+
+
+    private int grade;
+
      private Client client;
 
     private GameData gd;
@@ -31,25 +35,40 @@ public class ClientData implements Runnable {
             e.printStackTrace();
         }
 
-        initClientData();
+        updateClientData();
         checkForNewPokemons();
-        new Thread(this).start();
+        new Thread(this,"Client").start();
     }
 
 
-    private void initClientData() {
-        JsonElement elements = JsonParser.parseString(client.getInfo()).getAsJsonObject().get("GameServer");
-        JsonObject object = elements.getAsJsonObject();
+    void updateClientData() {
+        synchronized (client) {
+            JsonElement elements = JsonParser.parseString(client.getInfo()).getAsJsonObject().get("GameServer");
+            JsonObject object = elements.getAsJsonObject();
 
-        maxPokemons = object.get("pokemons").getAsInt();
-        moves = object.get("moves").getAsInt();
-        maxAgents = object.get("agents").getAsInt();
+            /**
+             *     *         "pokemons":1,
+             *      *         "is_logged_in":false,
+             *      *         "moves":1,
+             *      *         "grade":0,
+             *      *         "game_level":0,
+             *      *         "max_user_level":-1,
+             *      *         "id":0,
+             *      *         "graph":"data/A0",
+             *      *         "agents":1
+             *
+             */
+
+            maxPokemons = object.get("pokemons").getAsInt();
+            moves = object.get("moves").getAsInt();
+            maxAgents = object.get("agents").getAsInt();
+            grade = object.get("grade").getAsInt();
+        }
     }
 
-    public void run()
-    {
-        HashMap<Agent,Integer> agentLastPos = new HashMap<Agent,Integer>();
-        synchronized (this){
+    public void run() {
+        HashMap<Agent, Integer> agentLastPos = new HashMap<Agent, Integer>();
+        synchronized (this) {
             try {
                 wait();
             } catch (InterruptedException e) {
@@ -58,46 +77,42 @@ public class ClientData implements Runnable {
         }
         System.out.println("client start");
         client.start();
-        while (isRunning()) {;
-            synchronized (client){
+        int time = timeToEnd();
+        while (isRunning()) {
+            ;
+            synchronized (client) {
+                updateClientData();
                 checkForNewPokemons();
                 updateAgents();
                 boolean moved = false;
-                synchronized (gd.AgentLock){
+                synchronized (gd.AgentLock) {
                     for (Agent a :
                             gd.getAgents()) {
                         int node = a.getNextStaion();
-                        if(!agentLastPos.containsKey(a)){
+                        if (!agentLastPos.containsKey(a)) {
                             moved = true;
-                            agentLastPos.put(a,node);
-                        }
-                        else if(agentLastPos.get(a) != node){
+                            agentLastPos.put(a, node);
+                        } else if (agentLastPos.get(a) != node) {
                             moved = true;
-                            agentLastPos.replace(a,node);
+                            agentLastPos.replace(a, node);
                         }
                     }
-                    if (moved){
+                    if (moved) {
                         for (Agent a :
                                 gd.getAgents()) {
-                            sendAgent(a.id,agentLastPos.get(a));
+                            sendAgent(a.id, agentLastPos.get(a));
                         }
                     }
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                 }
-                //move();
             }
             try {
-                Thread.sleep(1);
+                Thread.sleep(20);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+        System.out.println(client.serverCalls);
     }
-
     public void move(){
         synchronized (client){
             client.move();
@@ -110,11 +125,17 @@ public class ClientData implements Runnable {
         }
     }
 
+    public int timeToEnd(){
+        synchronized (client) {
+            return Integer.parseInt(client.timeToEnd());
+        }
+    }
+
     public void registerAgent(Agent a){
         client.addAgent("{\"id\":"+a.getSrc()+"}");
     }
 
-    private void updateAgents(){
+    void updateAgents(){
             synchronized (client) {
             String json = client.getAgents();
             //System.out.println(json);
@@ -138,7 +159,7 @@ public class ClientData implements Runnable {
         }
     }
 
-    private void checkForNewPokemons(){
+    void checkForNewPokemons(){
         synchronized (gd){
             synchronized (client) {
                 HashSet<Pokemon> currentPokemons = new HashSet<Pokemon>();
@@ -165,9 +186,8 @@ public class ClientData implements Runnable {
                         }
                     }
                     if (!ex) {
-                        System.out.println("need to add pokemon");
                         Pokemon p = new Pokemon(value, type, Vector3.fromString(pos));
-                        gd.addPokemon(p);
+                        gd.addPokemon(p,timeToEnd());
                         gd.notifyAll();
                         currentPokemons.add(p);
                         changed = true;
@@ -175,10 +195,17 @@ public class ClientData implements Runnable {
                 }
 
                 for (int i = 0; i < gd.getFreePokemons().size();i++) {
-                    if (!currentPokemons.contains(gd.getFreePokemons().get(i))){
-                        System.out.println("removing pokemon");
-                        gd.getFreePokemons().remove(gd.getFreePokemons().get(i));
+                    if(!gd.getFreePokemons().get(i).isTaken()){
+                        Pokemon p =gd.getFreePokemons().get(i);
+                        gd.removePokemon(p);
+                        gd.addPokemon(p,timeToEnd());
                         changed = true;
+                    }
+
+                    if (!currentPokemons.contains(gd.getFreePokemons().get(i))){
+                        gd.removePokemon(gd.getFreePokemons().get(i));
+                        changed = true;
+                        gd.notifyAll();
                     }
                 }
 
@@ -204,13 +231,16 @@ public class ClientData implements Runnable {
         return maxAgents;
     }
 
+    public int getGrade() {
+        return grade;
+    }
+
     public Client getClient() {
         return client;
     }
 
     public void sendAgent(int id, int key) {
         synchronized (client) {
-            System.out.println("agent " + id + " to " + key);
             client.chooseNextEdge("{\"agent_id\":" + id + ", \"next_node_id\": " + key + "}");
         }
     }
@@ -222,4 +252,7 @@ public class ClientData implements Runnable {
             return ga;
         }
     }
+
+
+
 }

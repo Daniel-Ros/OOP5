@@ -1,6 +1,6 @@
 package Game;
 
-import api.DirectedWeightedGraphAlgorithms;
+import api.EdgeData;
 import api.GeoLocation;
 import api.NodeData;
 
@@ -9,35 +9,36 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-public class Agent implements Runnable{
+public class Agent implements Runnable {
     int id;
     double value;
     int src;
     int dest;
     double speed;
     GeoLocation pos;
-    List<NodeData> path;
-
-    int next;
+    Queue<NodeData> path;
 
     List<Pokemon> myPokemons;
+    NodeData pokeDest;
     GameData gd;
     ClientData cd;
+    double currentDist;
 
-    Agent(int id ,GameData gd,ClientData cd){
+    Agent(int id, GameData gd, ClientData cd) {
         this.id = id;
         this.gd = gd;
         this.cd = cd;
 
-        next = 10;
-
-        new Thread(this).start();
+        currentDist = 0;
+        myPokemons = new ArrayList<>();
+        pokeDest = null;
+        path = new LinkedList<>();
+        new Thread(this, "Agent" + id).start();
     }
 
-    public void update(double value,int src,int dest,double speed, GeoLocation pos)
-    {
+    public void update(double value, int src, int dest, double speed, GeoLocation pos) {
         this.value = value;
-        this.dest =dest;
+        this.dest = dest;
         this.src = src;
         this.speed = speed;
         this.pos = pos;
@@ -49,7 +50,6 @@ public class Agent implements Runnable{
     }
 
     public void setSrc(int src) {
-        next = src;
         this.src = src;
     }
 
@@ -78,7 +78,16 @@ public class Agent implements Runnable{
     }
 
     public int getNextStaion() {
-         return next;
+        synchronized (this) {
+            if (path.isEmpty() || path == null)
+                return -1;
+            if (src == path.peek().getKey()) {
+                path.poll();
+                if (path.isEmpty() || path == null)
+                    return -1;
+            }
+            return path.peek().getKey();
+        }
     }
 
     /**
@@ -94,77 +103,108 @@ public class Agent implements Runnable{
      */
     @Override
     public void run() {
-        synchronized (cd){
+        synchronized (cd) {
             try {
                 cd.wait();
-                while (!cd.isRunning());
+                while (!cd.isRunning()) ;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         System.out.println("agent running");
-        while (cd.isRunning()){
+        while (cd.isRunning()) {
             synchronized (GameData.AgentLock) {
-                try {
-                    GameData.AgentLock.wait(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 calculatePath();
-                if (path == null || path.isEmpty()) {
-                    System.out.println("no path");
-                    continue;
+                synchronized (GameData.AgentLock) {
+                    try {
+                        GameData.AgentLock.wait(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-                List<Pokemon> freePokemons = gd.getFreePokemons();
-                if (freePokemons.isEmpty())
-                    return;
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                if (path == null || path.isEmpty()) {
+                    continue;
                 }
             }
         }
         System.out.println("agent stopped");
     }
 
-    private void calculatePath(){
-
-        List<Pokemon> freePokemons = gd.getFreePokemons();
-        if(freePokemons.isEmpty()) {
-            System.out.println("no pokemons");
+    private void calculatePath() {
+        if (!path.isEmpty())
             return;
+
+        synchronized (this) {
+                path = new LinkedList<>();
+                if (myPokemons!= null && myPokemons.isEmpty()) {
+                    return;
+                }
+
+                double dist = Double.POSITIVE_INFINITY;
+                List<NodeData> minPath = null;
+
+                for (Pokemon p :
+                        myPokemons) {
+                    while (p.getEdge() == null)
+                        p.calculateEdge(gd.getGa());
+                    int psrc = p.getEdge().getSrc();
+                    int pdest = p.getEdge().getDest();
+                    NodeData nsrc = gd.getGa().getGraph().getNode(psrc);
+                    NodeData ndest = gd.getGa().getGraph().getNode(pdest);
+                    List<NodeData> tpath;
+
+                    tpath = gd.getGa().shortestPath(src, p.getEdge().getSrc());
+                    tpath.add(ndest);
+
+                    double ret = 0;
+
+                    for (int i = 1; i < tpath.size(); i++) {
+                        EdgeData e = gd.getGa().getGraph().getEdge(tpath.get(i - 1).getKey(), tpath.get(i).getKey());
+                        ret += e.getWeight();
+                    }
+                    if (ret < dist) {
+                        dist = ret;
+                        minPath = tpath;
+                        currentDist = dist;
+                        pokeDest = ndest;
+                    }
+                }
+                for (NodeData t :
+                        minPath) {
+                    path.add(t);
+                }
+                path.poll();
+
+            }
+    }
+
+    public double distToTarget(){
+        if(path.size() == 0)
+            return Double.POSITIVE_INFINITY;
+        return path.size();
+    }
+
+    public double bid(Pokemon pokemon) {
+        synchronized (gd){
+            if(path.size() > 0 && pokeDest != null){
+                synchronized (this) {
+                    return gd.getGa().shortestPathDist(pokeDest.getKey(), pokemon.getEdge().getSrc()) + pokemon.getEdge().getWeight() + currentDist * path.size();
+                }
+            } else{
+                return gd.getGa().shortestPathDist(src,pokemon.getEdge().getSrc());
+            }
         }
+    }
 
+    public void addPokemon(Pokemon p){
+        myPokemons.add(p);
+    }
 
-        List<NodeData> cp = new LinkedList<NodeData>();
-
-        for (Pokemon p :
-                gd.getFreePokemons()) {
-            cp.add(gd.getGa().getGraph().getNode(p.getEdge().getSrc()));
-            cp.add(gd.getGa().getGraph().getNode(p.getEdge().getDest()));
-        }
-
-        path = gd.getGa().tsp(cp);
-
-        Pokemon p = freePokemons.get(0);
-        while (p.getEdge() == null)
-            p.calculateEdge(gd.getGa());
-        int psrc = p.getEdge().getSrc();
-        int pdest = p.getEdge().getDest();
-        NodeData nsrc = gd.getGa().getGraph().getNode(psrc);
-        NodeData ndest = gd.getGa().getGraph().getNode(pdest);
-        System.out.println("from" + src + " to" + pdest);
-
-        path = gd.getGa().shortestPath(src,p.getEdge().getSrc());
-        if(!path.contains(ndest) || !path.contains(nsrc)) {
-            System.out.println("from" + src + " to" + pdest);
-            path = gd.getGa().shortestPath(src, p.getEdge().getDest());
-        }
-
-        path.remove(0);
-        next = path.get(0).getKey();
+    public void removePokemon(Pokemon p){
+        if(myPokemons != null && myPokemons.contains(p))
+            myPokemons.remove(p);
     }
 }
+
 
 
