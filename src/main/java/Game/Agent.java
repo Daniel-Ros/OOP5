@@ -24,6 +24,8 @@ public class Agent implements Runnable {
     ClientData cd;
     double currentDist;
 
+    boolean goingToCenter;
+
     Agent(int id, GameData gd, ClientData cd) {
         this.id = id;
         this.gd = gd;
@@ -33,6 +35,7 @@ public class Agent implements Runnable {
         myPokemons = new ArrayList<>();
         pokeDest = null;
         path = new LinkedList<>();
+        goingToCenter = false;
         new Thread(this, "Agent" + id).start();
     }
 
@@ -108,24 +111,21 @@ public class Agent implements Runnable {
                 cd.wait();
                 while (!cd.isRunning()) ;
             } catch (InterruptedException e) {
-
-
                 e.printStackTrace();
             }
         }
         System.out.println("agent running");
         while (cd.isRunning()) {
             synchronized (GameData.AgentLock) {
+                if(src == gd.getCenter())
+                    goingToCenter = false;
                 calculatePath();
                 synchronized (GameData.AgentLock) {
                     try {
-                        GameData.AgentLock.wait(10);
+                        GameData.AgentLock.wait(1);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                }
-                if (path == null || path.isEmpty()) {
-                    continue;
                 }
             }
         }
@@ -133,51 +133,43 @@ public class Agent implements Runnable {
     }
 
     private void calculatePath() {
-        if (!path.isEmpty())
-            return;
-
         synchronized (this) {
-                path = new LinkedList<>();
-                if (myPokemons!= null && myPokemons.isEmpty()) {
-                    return;
-                }
-
-                double dist = Double.POSITIVE_INFINITY;
-                List<NodeData> minPath = null;
-
-                for (Pokemon p :
-                        myPokemons) {
-                    while (p.getEdge() == null)
-                        p.calculateEdge(gd.getGa());
-                    int psrc = p.getEdge().getSrc();
-                    int pdest = p.getEdge().getDest();
-                    NodeData nsrc = gd.getGa().getGraph().getNode(psrc);
-                    NodeData ndest = gd.getGa().getGraph().getNode(pdest);
-                    List<NodeData> tpath;
-
-                    tpath = gd.getGa().shortestPath(src, p.getEdge().getSrc());
-                    tpath.add(ndest);
-
-                    double ret = 0;
-
-                    for (int i = 1; i < tpath.size(); i++) {
-                        EdgeData e = gd.getGa().getGraph().getEdge(tpath.get(i - 1).getKey(), tpath.get(i).getKey());
-                        ret += e.getWeight();
-                    }
-                    if (ret < dist) {
-                        dist = ret;
-                        minPath = tpath;
-                        currentDist = dist;
-                        pokeDest = ndest;
-                    }
-                }
-                for (NodeData t :
-                        minPath) {
-                    path.add(t);
-                }
-                path.poll();
-
+            path = new LinkedList<>();
+            if (myPokemons.isEmpty()) {
+                return;
             }
+
+            double dist = Double.POSITIVE_INFINITY;
+            List<NodeData> minPath = null;
+
+            for (Pokemon p : myPokemons) {
+                if (p.getEdge() == null)
+                    p.calculateEdge(gd.getGa());
+                int psrc = p.getEdge().getSrc();
+                int pdest = p.getEdge().getDest();
+                NodeData nsrc = gd.getGa().getGraph().getNode(psrc);
+                NodeData ndest = gd.getGa().getGraph().getNode(pdest);
+
+                List<NodeData> tpath;
+
+                tpath = gd.getGa().shortestPath(src, p.getEdge().getSrc());
+                tpath.add(ndest);
+
+                double ret = 0;
+                for (int i = 1; i < tpath.size(); i++) {
+                    EdgeData e = gd.getGa().getGraph().getEdge(tpath.get(i - 1).getKey(), tpath.get(i).getKey());
+                    ret += e.getWeight();
+                }
+                if (ret < dist) {
+                    dist = ret;
+                    minPath = tpath;
+                    currentDist = dist;
+                    pokeDest = ndest;
+                }
+            }
+            path.addAll(minPath);
+            path.poll();
+        }
     }
 
     public double distToTarget(){
@@ -188,9 +180,9 @@ public class Agent implements Runnable {
         EdgeData edge = gd.getGa().getGraph().getEdge(src, dest);
         double time = edge.getWeight()/ speed;
         if(path.size() < 2 ) {
-            return Math.min(Math.max(time / 10,0.1),0.15);
+            return Math.min(Math.max(time / 10,0.1),0.1);
         }else {
-            return Math.min(Math.max(time / 2,0.1),0.15);
+            return Math.min(Math.max(time / 2,0.1),0.1);
         }
     }
 
@@ -198,7 +190,7 @@ public class Agent implements Runnable {
         synchronized (gd){
             if(path.size() > 0 && pokeDest != null){
                 synchronized (this) {
-                    return gd.getGa().shortestPathDist(pokeDest.getKey(), pokemon.getEdge().getSrc()) + pokemon.getEdge().getWeight() + currentDist * path.size();
+                    return gd.getGa().shortestPathDist(pokeDest.getKey(), pokemon.getEdge().getSrc()) + pokemon.getEdge().getWeight();
                 }
             } else{
                 return gd.getGa().shortestPathDist(src,pokemon.getEdge().getSrc());

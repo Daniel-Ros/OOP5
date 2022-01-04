@@ -7,7 +7,9 @@ public class Game implements Runnable{
     ClientData cd;
     GameData gd;
 
+
     Window gui;
+
 
     public Game() {
         gd = new GameData();
@@ -23,14 +25,25 @@ public class Game implements Runnable{
             p.calculateEdge(gd.getGa());
         }
         NodeData c = gd.getGa().center();
+        gd.setCenter(c);
+        System.out.println("set center");
         int poke = 0;
         for (int i = 0; i < cd.getMaxAgents(); i++) {
             System.out.println("building agent");
             Agent a = new Agent(i,gd,cd);
-            if(poke < cd.getMaxPokemons())
-                a.setSrc(gd.getAllPokemons().get(poke++).getEdge().getSrc());
+            if(poke < cd.getMaxPokemons()) {
+                a.setSrc(gd.getAllPokemons().get(poke).getEdge().getSrc());
+                for (Pokemon p :
+                        gd.getAllPokemons()) {
+                    while(p.getEdge().getSrc() == gd.getAllPokemons().get(poke).getEdge().getDest()){
+                        poke++;
+                    }
+                    poke++;
+                }
+            }
             else
                 a.setSrc(c.getKey());
+
             gd.addAgent(a);
             cd.registerAgent(a);
         }
@@ -47,7 +60,7 @@ public class Game implements Runnable{
     @Override
     public void run() {
         System.out.println("Game starting");
-        int time = cd.timeToEnd();
+
         while (cd.isRunning()){
             Double minWatingTime = Double.POSITIVE_INFINITY;
             for (Agent a:
@@ -57,15 +70,16 @@ public class Game implements Runnable{
                     minWatingTime = t;
             }
             try {
-                System.out.println(minWatingTime);
+
                 Thread.sleep((long)(minWatingTime * 1000.0D));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-            int timeLeft = cd.timeToEnd();
-                time = timeLeft;
-                cd.move();
+            cd.move();
         }
     }
+
+
+
+
 }

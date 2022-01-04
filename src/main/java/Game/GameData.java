@@ -1,6 +1,7 @@
 package Game;
 
 import api.DirectedWeightedGraphAlgorithms;
+import api.NodeData;
 
 import java.util.ArrayList;
 
@@ -13,6 +14,7 @@ public class GameData {
 
 
     private DirectedWeightedGraphAlgorithms ga;
+    private NodeData center;
 
     GameData(){
         agents = new ArrayList<Agent>();
@@ -50,10 +52,15 @@ public class GameData {
         for (Agent a :
                 agents) {
             double tmp = a.bid(p);
+            if(tmp == -1)
+                continue;
             if(tmp < dist) {
                 dist = tmp;
                 winner = a;
             }
+        }
+        if(winner == null){
+            return;
         }
         p.setTaken(time);
         winner.addPokemon(p);
@@ -70,5 +77,14 @@ public class GameData {
                 agents) {
             a.removePokemon(pokemon);
         }
+    }
+
+    public void setCenter(NodeData center) {
+        this.center = center;
+    }
+
+    public int getCenter() {
+        if(center == null) return 0;
+        return center.getKey();
     }
 }
