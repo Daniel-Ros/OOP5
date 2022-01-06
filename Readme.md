@@ -43,50 +43,39 @@ This interfaces were written in previous assignment, and were modified to be bet
 
 
 ### Ingame footage
-![Image of graph ds methods](https://media0.giphy.com/media/MgY5wtOTRZDscUiLdJ/giphy.gif)
-
+![](../../Videos/video.gif)
 ### Scores per level
-| Level        | Grade          | Moves made    |
-|   :---:      |     :---:      |      :---:    |
-| 0            | 147            | 83            |
-| 1            | 578            | 334           |
-| 2            | 363            | 165           |
-| 3            | 942            | 383           |
-| 4            | 356            | 155           |
-| 5            | 848            | 344           |
-| 6            | 79             | 52            |
-| 7            | 437            | 280           |
-| 8            | 130            | 87            |
-| 9            | 511            | 312           |
-| 10           | 169            | 95            |
-| 11           | 2483           | 558           |
-| 12           | 66             | 53            |
-| 13           | 465            | 360           |
-| 14           | 187            | 122           |
-| 15           | 310            | 237           |
+| Level        | Grade | Moves made |
+|   :---:      |:-----:|:----------:|
+| 0            |  125  |    161     |
+| 1            |  521  |    330     |
+| 2            |  315  |    219     |
+| 3            |  828  |    554     |
+| 4            |  481  |    275     |
+| 5            | 1008  |    555     |
+| 6            |  147  |    272     |
+| 7            |  521  |    550     |
+| 8            |  98   |    548     |
+| 9            |  469  |    548     |
+| 10           |  168  |    274     |
+| 11           | 1068  |    515     |
+| 12           |  40   |    150     |
+| 13           |  273  |    597     |
+| 14           |  135  |    298     |
+| 15           |  239  |    404     |
 
-
-
-### UI Classes
-![Image of graph algo constructors](https://github.com/miko-t/OOEx2/blob/main/res/Part2_Graphics.png?raw=true)
-### Game Classes
-![Image of graph ds methods](https://github.com/miko-t/OOEx2/blob/main/res/Part2_Game.png?raw=true)
-### Utilites
-![Image of graph ds methods](https://github.com/miko-t/OOEx2/blob/main/res/Part2_Utilities.png?raw=true)
 
 ## Unit Tests
-- This project was tested using JUnit 5 (Jupiter) unit tests.
-- Inside the tests folder you can find two JUnit test classes:
-    - **DWGraph_AlgoTest:** this class was used to test the DWGraph_Algo class.
-    - **DWGraph_DSTest:** this class was used to test the DWGraph_DS class.
-    - **JsonGraoh_Test:** this class was used to test the Json Graph loader class.
-    - **invertedGraoh_Test:** this class was used to test the Inverted Graph class.
-    - **testsPart2:** this class was used to test the Part2, honestly the game and the ui is a test so its useless
+this project was test using the JUINT5 library. the tests can be run by an IDE of choice.
 
 ## Importing and Using the Project
 - In order to be able to use this project, you should have JDK 11 or above (not tetsted on older versions).
 
 - Simply clone this project to you computer and then import it to your favorite IDE (Eclipse, IntelliJ, etc..).
 
-- to run the game you can simply Click on the Ex2.jar, or run the Ex2.java file, either way, it depends on outside Server with would probably be dead in a month.
-  
+- run the server and then run the program.
+
+
+    https://github.com/Daniel-Ros/OOP5.git
+    java -jar Ex4_Server_v0.0.jar {TEST CASE}
+    java -jar Ex4
