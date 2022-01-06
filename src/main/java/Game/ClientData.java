@@ -67,8 +67,7 @@ public class ClientData implements Runnable {
         System.out.println("client start");
         client.start();
         int time = timeToEnd();
-        while (isRunning()) {
-            ;
+        while (isRunning()) {;
             synchronized (client) {
                 updateClientData();
                 checkForNewPokemons();
@@ -88,30 +87,23 @@ public class ClientData implements Runnable {
             }
         }
     }
-    public void move(){
-        synchronized (client){
+    public synchronized void move(){
             client.move();
-        }
     }
 
-    public boolean isRunning(){
-        synchronized (client) {
+    public synchronized boolean isRunning(){
             return client.isRunning().equals("true");
-        }
     }
 
-    public int timeToEnd(){
-        synchronized (client) {
+    public synchronized int timeToEnd(){
             return Integer.parseInt(client.timeToEnd());
-        }
     }
 
     public void registerAgent(Agent a){
         client.addAgent("{\"id\":"+a.getSrc()+"}");
     }
 
-    void updateAgents(){
-            synchronized (client) {
+    private synchronized void updateAgents(){
             String json = client.getAgents();
             //System.out.println(json);
             JsonElement elements = JsonParser.parseString(json);
@@ -127,16 +119,12 @@ public class ClientData implements Runnable {
                 int speed = Agent.get("speed").getAsInt();
                 String pos = Agent.get("pos").getAsString();
 
-                synchronized (gd) {
                     gd.getAgents().get(id).update(value, src, dest, speed, Vector3.fromString(pos));
                 }
-            }
         }
-    }
 
-    void checkForNewPokemons(){
-        synchronized (gd){
-            synchronized (client) {
+    private synchronized void checkForNewPokemons(){
+
                 HashSet<Pokemon> currentPokemons = new HashSet<Pokemon>();
                 boolean changed = false;
                 String json = client.getPokemons();
@@ -161,26 +149,29 @@ public class ClientData implements Runnable {
                         }
                     }
                     if (!ex) {
-                        Pokemon p = new Pokemon(value, type, Vector3.fromString(pos));
-                        gd.addPokemon(p,timeToEnd());
-                        gd.notifyAll();
-                        currentPokemons.add(p);
-                        changed = true;
+                        synchronized (gd) {
+                            Pokemon p = new Pokemon(value, type, Vector3.fromString(pos));
+                            gd.addPokemon(p, timeToEnd());
+                            gd.notifyAll();
+                            currentPokemons.add(p);
+                            changed = true;
+                        }
                     }
                 }
+                synchronized (gd) {
+                    for (int i = 0; i < gd.getFreePokemons().size(); i++) {
+                        if (!gd.getFreePokemons().get(i).isTaken()) {
+                            Pokemon p = gd.getFreePokemons().get(i);
+                            gd.removePokemon(p);
+                            gd.addPokemon(p, timeToEnd());
+                            changed = true;
+                        }
 
-                for (int i = 0; i < gd.getFreePokemons().size();i++) {
-                    if(!gd.getFreePokemons().get(i).isTaken()){
-                        Pokemon p =gd.getFreePokemons().get(i);
-                        gd.removePokemon(p);
-                        gd.addPokemon(p,timeToEnd());
-                        changed = true;
-                    }
-
-                    if (!currentPokemons.contains(gd.getFreePokemons().get(i))){
-                        gd.removePokemon(gd.getFreePokemons().get(i));
-                        changed = true;
-                        gd.notifyAll();
+                        if (!currentPokemons.contains(gd.getFreePokemons().get(i))) {
+                            gd.removePokemon(gd.getFreePokemons().get(i));
+                            changed = true;
+                            gd.notifyAll();
+                        }
                     }
                 }
 
@@ -190,8 +181,6 @@ public class ClientData implements Runnable {
                     }
 
             }
-        }
-    }
 
     public int getMaxPokemons() {
         return maxPokemons;
@@ -213,18 +202,14 @@ public class ClientData implements Runnable {
         return client;
     }
 
-    public void sendAgent(int id, int key) {
-        synchronized (client) {
+    public synchronized void sendAgent(int id, int key) {
             client.chooseNextEdge("{\"agent_id\":" + id + ", \"next_node_id\": " + key + "}");
-        }
     }
 
-    public DirectedWeightedGraphAlgorithms getGraph() {
-        synchronized (client) {
+    public synchronized DirectedWeightedGraphAlgorithms getGraph() {
             DirectedWeightedGraphAlgorithms ga = new DirectedWeightedGraphAlgorithmsImpl();
             ga.load(client.getGraph());
             return ga;
-        }
     }
 
 
