@@ -39,6 +39,7 @@ public class Pokemon {
     }
 
     public void calculateEdge(DirectedWeightedGraphAlgorithms ga){
+        System.out.println(pos.x() + " " + pos.y());
         Iterator<EdgeData> edges = ga.getGraph().edgeIter();
         EdgeData minEdge = null;
         double min =  Float.POSITIVE_INFINITY;

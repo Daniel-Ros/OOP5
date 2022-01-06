@@ -43,7 +43,7 @@ This interfaces were written in previous assignment, and were modified to be bet
 
 
 ### Ingame footage
-![](../../Videos/video.gif)
+![](video.gif)
 ### Scores per level
 | Level        | Grade | Moves made |
 |   :---:      |:-----:|:----------:|
