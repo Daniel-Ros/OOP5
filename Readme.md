@@ -72,10 +72,9 @@ this project was test using the JUINT5 library. the tests can be run by an IDE o
 - In order to be able to use this project, you should have JDK 11 or above (not tetsted on older versions).
 
 - Simply clone this project to you computer and then import it to your favorite IDE (Eclipse, IntelliJ, etc..).
-
 - run the server and then run the program.
 
 
-  git clone https://github.com/Daniel-Ros/OOP5.git
-  ava -jar Ex4_Server_v0.0.jar {TEST CASE}
-  java -jar Ex4
+    git clone https://github.com/Daniel-Ros/OOP5.git
+    java -jar Ex4_Server_v0.0.jar {TEST CASE}
+    java -jar Ex4
