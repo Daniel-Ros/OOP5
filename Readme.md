@@ -74,6 +74,7 @@ this project was test using the JUINT5 library. the tests can be run by an IDE o
 - Simply clone this project to you computer and then import it to your favorite IDE (Eclipse, IntelliJ, etc..).
 - run the server and then run the program.
 
+you can also run it like so:
 
     git clone https://github.com/Daniel-Ros/OOP5.git
     java -jar Ex4_Server_v0.0.jar {TEST CASE}
