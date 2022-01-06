@@ -3,7 +3,7 @@
 
 - This project was built as part of the OOP Course of the Computer Science Department at Ariel University.
 
-- in this project we nned to build upon our [second assigment](https://github.com/Daniel-Ros/OOP3) and create agents
+- in this project we needeg to build upon our [second assigment](https://github.com/Daniel-Ros/OOP3) and create agents
 that will grab "pokemons"
 
 - **Project contributors**: Daniel Rosenberg
