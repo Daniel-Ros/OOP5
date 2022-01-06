@@ -76,7 +76,7 @@ public class ClientData implements Runnable {
                 synchronized (gd.AgentLock) {
                         for (Agent a :
                                 gd.getAgents()) {
-                            sendAgent(a.id, a.getNextStaion());
+                            sendAgent(a.getId(), a.getNextStaion());
                         }
                 }
             }

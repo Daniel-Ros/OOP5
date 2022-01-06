@@ -10,19 +10,19 @@ import java.util.List;
 import java.util.Queue;
 
 public class Agent implements Runnable {
-    int id;
-    double value;
-    int src;
-    int dest;
-    double speed;
-    GeoLocation pos;
-    Queue<NodeData> path;
+    private int id;
+    private double value;
+    private int src;
+    private int dest;
+    private double speed;
+    private GeoLocation pos;
+    private Queue<NodeData> path;
 
-    List<Pokemon> myPokemons;
-    NodeData pokeDest;
-    GameData gd;
-    ClientData cd;
-    double currentDist;
+    private List<Pokemon> myPokemons;
+    private NodeData pokeDest;
+    private GameData gd;
+    private  ClientData cd;
+    private  double currentDist;
 
     boolean goingToCenter;
 
@@ -142,12 +142,19 @@ public class Agent implements Runnable {
         }
     }
 
+    /**
+     * return a wating time acording to the proximity to a pokemon
+     * @return wating time
+     */
     public double distToTarget(){
         if(dest == -1){
             return 0.1;
         }
 
         EdgeData edge = gd.getGa().getGraph().getEdge(src, dest);
+        if(edge == null){
+            return 0.1;
+        }
         double time = edge.getWeight()/ speed;
         if(path.size() < 2 ) {
             return Math.min(Math.max(time / 10,0.1),0.1);
@@ -230,6 +237,10 @@ public class Agent implements Runnable {
 
     public void setCd(ClientData cd) {
         this.cd = cd;
+    }
+
+    public int getId() {
+        return id;
     }
 }
 

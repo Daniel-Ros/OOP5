@@ -12,9 +12,9 @@ public class Pokemon {
     private int type;
     private GeoLocation pos;
     private EdgeData edge;
-    boolean taken;
+    private boolean taken;
 
-    int takenAt;
+    private int takenAt;
 
     Pokemon(double val,int type,GeoLocation pos)
     {

@@ -4,12 +4,12 @@ import GUI.Window;
 import api.NodeData;
 
 public class Game implements Runnable{
-    ClientData cd;
-    GameData gd;
+    private ClientData cd;
+    private GameData gd;
 
 
-    Window gui;
-
+    private Window gui;
+    private int moves, grade;
 
     public Game() {
         gd = new GameData();
@@ -18,7 +18,7 @@ public class Game implements Runnable{
         gd.setGa(cd.getGraph());
     }
 
-    public void build()
+    public void build(boolean isGui)
     {
         for (Pokemon p :
                 gd.getAllPokemons()) {
@@ -51,16 +51,15 @@ public class Game implements Runnable{
         synchronized (cd) {
             cd.notifyAll();
         }
-
-        gui = new Window(gd,cd);
-
+        if(isGui) {
+            gui = new Window(gd, cd);
+        }
         new Thread(this,"Game").start();
     }
 
     @Override
     public void run() {
         System.out.println("Game starting");
-
         while (cd.isRunning()){
             Double minWatingTime = Double.POSITIVE_INFINITY;
             for (Agent a:
@@ -77,9 +76,28 @@ public class Game implements Runnable{
             }
             cd.move();
         }
+
+        moves = cd.getMoves();
+        grade = cd.getGrade();
     }
 
+    public ClientData getCd() {
+        return cd;
+    }
 
+    public int getMoves() {
+        return moves;
+    }
 
+    public void setMoves(int moves) {
+        this.moves = moves;
+    }
 
+    public int getGrade() {
+        return grade;
+    }
+
+    public void setGrade(int grade) {
+        this.grade = grade;
+    }
 }
