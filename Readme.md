@@ -76,6 +76,6 @@ this project was test using the JUINT5 library. the tests can be run by an IDE o
 - run the server and then run the program.
 
 
-  https://github.com/Daniel-Ros/OOP5.git
+  git clone https://github.com/Daniel-Ros/OOP5.git
   ava -jar Ex4_Server_v0.0.jar {TEST CASE}
   java -jar Ex4
