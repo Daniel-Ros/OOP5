@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * The dijkstra algorithm basec on priority queue
  */
-public class Dijkstra{
+class Dijkstra{
     private int src,dest;
     private DirectedWeightedGraph graph;
     private List<NodeData> ret;
@@ -36,7 +36,7 @@ public class Dijkstra{
      * @param src
      * @param g the graph
      */
-    Dijkstra(int src, DirectedWeightedGraph g){
+    public Dijkstra(int src, DirectedWeightedGraph g){
         this.src = src;
         this.dest =Integer.MAX_VALUE;
         this.graph = g;

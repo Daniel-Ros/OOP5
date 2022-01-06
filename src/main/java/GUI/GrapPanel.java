@@ -69,7 +69,7 @@ public class GrapPanel extends JPanel implements MouseListener, MouseWheelListen
         if(ga.getGraph() == null){
             return;
         }
-        stop.repaint();
+        //stop.repaint();
 
         this.min =((DirectedWeightedGraphAlgorithmsImpl)ga).getMin();
         this.max = ((DirectedWeightedGraphAlgorithmsImpl)ga).getMax();
@@ -126,7 +126,6 @@ public class GrapPanel extends JPanel implements MouseListener, MouseWheelListen
         }
 
         synchronized (gd){
-            //System.out.println(gd.getFreePokemons().size());
             for (Pokemon p : gd.getFreePokemons())
             {
                 g.setStroke(new BasicStroke(5));
@@ -135,8 +134,10 @@ public class GrapPanel extends JPanel implements MouseListener, MouseWheelListen
                 }else{
                     g.setPaint(Color.BLUE);
                 }
+                GeoLocation start = gd.getGa().getGraph().getNode(p.getEdge().getSrc()).getLocation();
+                start = getPoint2ScreenCord(start.x(),start.y());
                 GeoLocation point = getPoint2ScreenCord(p.getPos().x(),p.getPos().y());
-                g.drawOval((int)point.x()-7,(int)point.y()-7,15,15);
+                drawArrowHead(g,start,point,30);
             }
 
 
@@ -163,6 +164,40 @@ public class GrapPanel extends JPanel implements MouseListener, MouseWheelListen
         return new Vector3(newx,newy,0);
     }
 
+
+    private void drawArrowHead(final Graphics2D gfx, final GeoLocation start, final GeoLocation end, final float arrowSize)
+    {
+        final double startx = start.x();
+        final double starty = start.y();
+
+        final double deltax = startx - end.x();
+        final double result;
+        if (deltax == 0.0d) {
+            result = Math.PI / 2;
+        }
+        else {
+            result = Math.atan((starty - end.y()) / deltax) + (startx < end.x() ? Math.PI : 0);
+        }
+
+        final double angle = result;
+
+        final double arrowAngle = Math.PI / 12.0d;
+
+        final double x1 = arrowSize * Math.cos(angle - arrowAngle);
+        final double y1 = arrowSize * Math.sin(angle - arrowAngle);
+        final double x2 = arrowSize * Math.cos(angle + arrowAngle);
+        final double y2 = arrowSize * Math.sin(angle + arrowAngle);
+
+        final double cx = (arrowSize / 2.0f) * Math.cos(angle);
+        final double cy = (arrowSize / 2.0f) * Math.sin(angle);
+
+        final GeneralPath polygon = new GeneralPath();
+        polygon.moveTo(end.x(), end.y());
+        polygon.lineTo(end.x() + x1, end.y() + y1);
+        polygon.lineTo(end.x() + x2, end.y() + y2);
+        polygon.closePath();
+        gfx.fill(polygon);
+    }
 
     //draws an arrow
     private void drawArrow (final Graphics2D gfx, final GeoLocation start, final GeoLocation end, final float arrowSize) {

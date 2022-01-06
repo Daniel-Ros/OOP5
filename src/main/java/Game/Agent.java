@@ -39,6 +39,18 @@ public class Agent implements Runnable {
         new Thread(this, "Agent" + id).start();
     }
 
+    /**
+     * This constructor is only for testing.
+     * It will *not* make an new thread and will do absolutly nothing :D
+     */
+    public Agent() {
+        currentDist = 0;
+        myPokemons = new ArrayList<>();
+        pokeDest = null;
+        path = new LinkedList<>();
+        goingToCenter = false;
+    }
+
     public void update(double value, int src, int dest, double speed, GeoLocation pos) {
         this.value = value;
         this.dest = dest;
@@ -48,50 +60,6 @@ public class Agent implements Runnable {
     }
 
 
-    public int getSrc() {
-        return src;
-    }
-
-    public void setSrc(int src) {
-        this.src = src;
-    }
-
-    public int getDest() {
-        return dest;
-    }
-
-    public void setDest(int dest) {
-        this.dest = dest;
-    }
-
-    public double getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-
-    public GeoLocation getPos() {
-        return pos;
-    }
-
-    public void setPos(GeoLocation pos) {
-        this.pos = pos;
-    }
-
-    public int getNextStaion() {
-        synchronized (this) {
-            if (path.isEmpty() || path == null)
-                return -1;
-            if (src == path.peek().getKey()) {
-                path.poll();
-                if (path.isEmpty() || path == null)
-                    return -1;
-            }
-            return path.peek().getKey();
-        }
-    }
 
     /**
      * When an object implementing interface {@code Runnable} is used
@@ -160,7 +128,8 @@ public class Agent implements Runnable {
                     EdgeData e = gd.getGa().getGraph().getEdge(tpath.get(i - 1).getKey(), tpath.get(i).getKey());
                     ret += e.getWeight();
                 }
-                if (ret < dist) {
+
+                if (ret <= dist) {
                     dist = ret;
                     minPath = tpath;
                     currentDist = dist;
@@ -169,6 +138,7 @@ public class Agent implements Runnable {
             }
             path.addAll(minPath);
             path.poll();
+
         }
     }
 
@@ -182,7 +152,7 @@ public class Agent implements Runnable {
         if(path.size() < 2 ) {
             return Math.min(Math.max(time / 10,0.1),0.1);
         }else {
-            return Math.min(Math.max(time / 2,0.1),0.1);
+            return Math.min(Math.max(time / 2,0.1),0.25);
         }
     }
 
@@ -205,6 +175,61 @@ public class Agent implements Runnable {
     public void removePokemon(Pokemon p){
         if(myPokemons != null && myPokemons.contains(p))
             myPokemons.remove(p);
+    }
+
+
+
+    public int getSrc() {
+        return src;
+    }
+
+    public void setSrc(int src) {
+        this.src = src;
+    }
+
+    public int getDest() {
+        return dest;
+    }
+
+    public void setDest(int dest) {
+        this.dest = dest;
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+
+    public GeoLocation getPos() {
+        return pos;
+    }
+
+    public void setPos(GeoLocation pos) {
+        this.pos = pos;
+    }
+
+    public int getNextStaion() {
+        synchronized (this) {
+            if (path.isEmpty() || path == null)
+                return -1;
+            if (src == path.peek().getKey()) {
+                path.poll();
+                if (path.isEmpty() || path == null)
+                    return -1;
+            }
+            return path.peek().getKey();
+        }
+    }
+
+    public void setGd(GameData gd) {
+        this.gd = gd;
+    }
+
+    public void setCd(ClientData cd) {
+        this.cd = cd;
     }
 }
 

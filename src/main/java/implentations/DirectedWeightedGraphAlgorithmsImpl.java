@@ -200,51 +200,6 @@ public class DirectedWeightedGraphAlgorithmsImpl implements DirectedWeightedGrap
     }
 
     /**
-     * Computes a list of consecutive nodes which go over all the nodes in cities.
-     * the sum of the weights of all the consecutive (pairs) of nodes (directed) is the "cost" of the solution -
-     * the lower the better.
-     * See: https://en.wikipedia.org/wiki/Travelling_salesman_problem
-     * @param cities
-     */
-    @Override
-    public List<NodeData> tsp(List<NodeData> cities) {
-        if(cities == null || cities.isEmpty()) return null;
-        LinkedList<NodeData> remaining = new LinkedList<NodeData>();
-        for (NodeData c :
-                cities) {
-            remaining.add(c);
-        }
-
-        Dijkstra dijkstra = new Dijkstra(cities.get(0).getKey(),graph);
-        dijkstra.run();
-        HashMap<Integer,Double> distMap = dijkstra.getDistMap();
-
-        for (NodeData n : cities){
-            if(distMap.get(n.getKey()) == Double.POSITIVE_INFINITY) return null;
-        }
-
-        LinkedList<NodeData> ret = new LinkedList<>();
-        ret.add(cities.get(0));
-        while (!remaining.isEmpty()){
-            NodeData city = ret.peekLast();
-            remaining.remove(city);
-            NodeData minDirectRoad = getMinDirectRoad(city,remaining);
-            if(minDirectRoad != null){
-                remaining.remove(minDirectRoad);
-                ret.add(minDirectRoad);
-            }else{
-                List<NodeData> minRoad = getMinRoad(city,remaining);
-                for (NodeData n :
-                        minRoad) {
-                    remaining.remove(n);
-                    ret.add(n);
-                }
-            }
-        }
-        return ret;
-    }
-
-    /**
      * An halper function the help us to find the minimum road from some node to one of the remianing nodes
      * @param city
      * @param remaining

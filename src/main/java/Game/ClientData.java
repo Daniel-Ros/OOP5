@@ -57,7 +57,6 @@ public class ClientData implements Runnable {
     }
 
     public void run() {
-        HashMap<Agent, Integer> agentLastPos = new HashMap<Agent, Integer>();
         synchronized (this) {
             try {
                 wait();
@@ -76,23 +75,10 @@ public class ClientData implements Runnable {
                 updateAgents();
                 boolean moved = false;
                 synchronized (gd.AgentLock) {
-                    for (Agent a :
-                            gd.getAgents()) {
-                        int node = a.getNextStaion();
-                        if (!agentLastPos.containsKey(a)) {
-                            moved = true;
-                            agentLastPos.put(a, node);
-                        } else if (agentLastPos.get(a) != node) {
-                            moved = true;
-                            agentLastPos.replace(a, node);
-                        }
-                    }
-                    if (moved) {
                         for (Agent a :
                                 gd.getAgents()) {
-                            sendAgent(a.id, agentLastPos.get(a));
+                            sendAgent(a.id, a.getNextStaion());
                         }
-                    }
                 }
             }
             try {
@@ -206,7 +192,6 @@ public class ClientData implements Runnable {
             }
         }
     }
-
 
     public int getMaxPokemons() {
         return maxPokemons;
