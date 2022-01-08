@@ -1,11 +1,9 @@
 <component name="ArtifactManager">
-  <artifact build-on-make="true" name="OOP5:jar">
+  <artifact type="jar" name="OOP5:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/OOP5_jar</output-path>
-    <root id="root">
-      <element id="archive" name="OOP5.jar">
-        <element id="module-output" name="OOP5" />
-        <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.8.9" />
-      </element>
+    <root id="archive" name="Ex4.jar">
+      <element id="module-output" name="OOP5" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
