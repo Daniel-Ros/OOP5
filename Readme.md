@@ -44,6 +44,14 @@ This interfaces were written in previous assignment, and were modified to be bet
 
 ### Ingame footage
 ![](video.gif)
+
+### video footage
+https://youtu.be/dPgIqZ6Ig38
+
+### uml 
+![image](https://github.com/Daniel-Ros/OOP5/blob/master/Game.png)
+
+
 ### Scores per level
 | Level        | Grade | Moves made |
 |   :---:      |:-----:|:----------:|
