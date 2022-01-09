@@ -3,7 +3,7 @@ package Game;
 import GUI.Window;
 import api.NodeData;
 
-public class Game implements Runnable{
+public class Game extends GameData implements Runnable{
     private ClientData cd;
     private GameData gd;
 

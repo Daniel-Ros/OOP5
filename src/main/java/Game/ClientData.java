@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class ClientData implements Runnable {
+public class ClientData extends Game implements Runnable {
     private int maxPokemons;
     private int moves;
     private int maxAgents;

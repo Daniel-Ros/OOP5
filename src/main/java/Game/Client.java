@@ -7,7 +7,7 @@ package Game;/* @author AchiyaZigi
 import java.io.*;
 import java.net.*;
 
-public class Client {
+public class Client extends ClientData {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;

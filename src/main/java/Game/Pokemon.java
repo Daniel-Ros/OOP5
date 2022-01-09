@@ -7,7 +7,7 @@ import implentations.Vector3;
 
 import java.util.Iterator;
 
-public class Pokemon {
+public class Pokemon extends Game {
     private double val;
     private int type;
     private GeoLocation pos;

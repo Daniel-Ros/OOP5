@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-public class Agent implements Runnable {
+public class Agent extends Game implements Runnable {
     private int id;
     private double value;
     private int src;
