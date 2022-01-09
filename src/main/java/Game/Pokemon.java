@@ -38,6 +38,11 @@ public class Pokemon {
         taken = true;
     }
 
+    /**
+     * calculate the edge that the pokemon is on using linear algebera ans some vector math
+     *
+     * @param ga
+     */
     public void calculateEdge(DirectedWeightedGraphAlgorithms ga){
         Iterator<EdgeData> edges = ga.getGraph().edgeIter();
         EdgeData minEdge = null;

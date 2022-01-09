@@ -41,8 +41,10 @@ public class ClientData implements Runnable {
     }
 
 
-    void updateClientData() {
-        synchronized (client) {
+    /**
+     * update client data from get info
+     */
+    public synchronized void updateClientData() {
              try {
                  JsonElement elements = JsonParser.parseString(client.getInfo()).getAsJsonObject().get("GameServer");
                  JsonObject object = elements.getAsJsonObject();
@@ -53,9 +55,11 @@ public class ClientData implements Runnable {
              }catch (Exception e){
                  return;
              }
-        }
     }
 
+    /**
+     * run the main thead of the client, update the game status every 20 millies
+     */
     public void run() {
         synchronized (this) {
             try {
@@ -103,6 +107,9 @@ public class ClientData implements Runnable {
         client.addAgent("{\"id\":"+a.getSrc()+"}");
     }
 
+    /**
+     * update all the agents
+     */
     private synchronized void updateAgents(){
             String json = client.getAgents();
             //System.out.println(json);
@@ -123,6 +130,10 @@ public class ClientData implements Runnable {
                 }
         }
 
+    /**
+     * update all the pokemons
+     * delete old pokemons and notify about new ones
+     */
     private synchronized void checkForNewPokemons(){
 
                 HashSet<Pokemon> currentPokemons = new HashSet<Pokemon>();

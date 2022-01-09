@@ -47,6 +47,12 @@ public class Window implements Runnable{
         graphPanel.getTopLevelAncestor().repaint();
     }
 
+
+    /*
+    *refresh the screen at 60 fps
+    *
+    *
+     */
     @Override
     public void run() {
         while (cd.isRunning()) {

@@ -18,6 +18,12 @@ public class Game implements Runnable{
         gd.setGa(cd.getGraph());
     }
 
+
+    /**
+     * build the game and init all the agents. also start all the therads
+     *
+     * @param isGui
+     */
     public void build(boolean isGui)
     {
         for (Pokemon p :
@@ -57,6 +63,10 @@ public class Game implements Runnable{
         new Thread(this,"Game").start();
     }
 
+
+    /**
+     * just run move acording to the agents data
+     */
     @Override
     public void run() {
         System.out.println("Game starting");

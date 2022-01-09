@@ -41,6 +41,12 @@ public class GameData {
         return ga;
     }
 
+    /**
+     * add pokemon by looping throught all agents and asking which one is closer to the pokemon
+     *
+     * @param p
+     * @param time
+     */
     public void addPokemon(Pokemon p,int time) {
         allPokemons.add(p);
         if(ga != null)

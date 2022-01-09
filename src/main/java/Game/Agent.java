@@ -51,6 +51,14 @@ public class Agent implements Runnable {
         goingToCenter = false;
     }
 
+    /**
+     * update the parameters of an agent
+     * @param value
+     * @param src
+     * @param dest
+     * @param speed
+     * @param pos
+     */
     public void update(double value, int src, int dest, double speed, GeoLocation pos) {
         this.value = value;
         this.dest = dest;
@@ -100,6 +108,9 @@ public class Agent implements Runnable {
         System.out.println("agent stopped");
     }
 
+    /**
+     * calculates the path and update some paramters about current pokemon and path disttance
+     */
     private void calculatePath() {
         synchronized (this) {
             path = new LinkedList<>();
@@ -218,6 +229,10 @@ public class Agent implements Runnable {
         this.pos = pos;
     }
 
+    /**
+     * just return the next staion or -1 if there is no next station
+     * @return
+     */
     public int getNextStaion() {
         synchronized (this) {
             if (path.isEmpty() || path == null)
