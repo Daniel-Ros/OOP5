@@ -33,7 +33,7 @@ public class Window implements Runnable{
         graphPanel = new GrapPanel(ga,((DirectedWeightedGraphAlgorithmsImpl)ga).getMin(),((DirectedWeightedGraphAlgorithmsImpl)ga).getMax(),gd,cd);
 
         window.setSize(800,800);
-        window.setTitle("Daniel Roseberg");
+        window.setTitle("Daniel Rosenberg");
         window.setVisible(true);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
